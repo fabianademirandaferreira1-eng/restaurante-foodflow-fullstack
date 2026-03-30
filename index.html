@@ -1,88 +1,62 @@
-``
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pt-br">
 <head>
-    <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #fdf2e9;
-            /* Um tom creme suave */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        h1 {
-            color: #e67e22;
-            /* Laranja cenoura/comida */
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-
-        p {
-            color: #555;
-            font-size: 1.2rem;
-        }
-
-        button {
-            background-color: #27ae60;
-            /* Verde sucesso */
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background-color: #2ecc71;
-            transform: scale(1.05);
-        }
-    </style>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>FoodFlow - Sistema de Gestão</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #fdf2e9; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        h1 { color: #e67e22; font-size: 3rem; margin-bottom: 5px; }
+        .container { text-align: center; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
+        .seletor-logistica { background: #f9f9f9; padding: 15px; border-radius: 15px; margin: 20px 0; border: 1px solid #eee; }
+        .grid-cardapio { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .item-prato { background: white; border: 1px solid #fce4d6; padding: 15px; border-radius: 15px; text-align: center; }
+        button { background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; margin-top: 10px; width: 100%; }
+        button:hover { background-color: #2ecc71; transform: scale(1.02); }
+        input[type="text"], input[type="number"] { width: 80%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
 </head>
+<body>
 
-<<h1>Bem-vindo ao FoodFlow</h1>
-    <p>O sistema de gestão do seu restaurante está em desenvolvimento.</p>
-    <button onclick="fazerPedido()">Fazer Pedido</button>
-    <script>
-        function fazerPedido() {
-            alert("Pedido recebido com sucesso! O FoodFlow está processando sua solicitação.");
-        }
-    </script>
-    </body>
+    <div class="container">
+        <h1>FoodFlow</h1>
+        <p>O sistema de gestão do seu restaurante</p>
 
-</html>
-</div> 
-
-    <script>
-        // Esta função faz os campos de Endereço/Mesa aparecerem ou sumirem
-        function toggleEndereco(isDelivery) {
-            const campoEndereco = document.getElementById('campo-endereco');
-            const campoMesa = document.getElementById('campo-mesa');
+        <div class="seletor-logistica">
+            <h3>Como deseja seu pedido?</h3>
+            <label><input type="radio" name="tipo" value="local" checked onclick="toggleEndereco(false)"> 📍 Local</label>
+            <label><input type="radio" name="tipo" value="delivery" onclick="toggleEndereco(true)"> 🛵 Delivery</label>
             
-            if (isDelivery) {
-                campoEndereco.style.display = 'block';
-                campoMesa.style.display = 'none';
-            } else {
-                campoEndereco.style.display = 'none';
-                campoMesa.style.display = 'block';
-            }
+            <div id="campo-endereco" style="display: none;">
+                <input type="text" id="endereco" placeholder="Digite seu endereço de entrega">
+            </div>
+            <div id="campo-mesa">
+                <input type="number" id="mesa" placeholder="Nº da Mesa">
+            </div>
+        </div>
+
+        <div class="grid-cardapio">
+            <div class="item-prato">
+                <h3>Hambúrguer</h3>
+                <p>R$ 25,00</p>
+                <button onclick="fazerPedido('Hambúrguer')">Pedir</button>
+            </div>
+            <div class="item-prato">
+                <h3>Pizza</h3>
+                <p>R$ 45,00</p>
+                <button onclick="fazerPedido('Pizza')">Pedir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEndereco(isDelivery) {
+            document.getElementById('campo-endereco').style.display = isDelivery ? 'block' : 'none';
+            document.getElementById('campo-mesa').style.display = isDelivery ? 'none' : 'block';
         }
 
-        // Esta função avisa que o pedido foi feito
         function fazerPedido(item) {
             const tipo = document.querySelector('input[name="tipo"]:checked').value;
-            alert("Sucesso! Pedido de " + item + " recebido para: " + tipo.toUpperCase());
+            alert("Sucesso! Pedido de " + item + " para " + tipo.toUpperCase());
         }
     </script>
 </body>
