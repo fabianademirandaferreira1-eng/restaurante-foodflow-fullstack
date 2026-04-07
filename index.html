@@ -2,62 +2,57 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>FoodFlow - Sistema de Gestão</title>
+    <title>FoodFlow - Novo Pedido</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #fdf2e9; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
-        h1 { color: #e67e22; font-size: 3rem; margin-bottom: 5px; }
-        .container { text-align: center; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 600px; width: 100%; }
-        .seletor-logistica { background: #f9f9f9; padding: 15px; border-radius: 15px; margin: 20px 0; border: 1px solid #eee; }
-        .grid-cardapio { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .item-prato { background: white; border: 1px solid #fce4d6; padding: 15px; border-radius: 15px; text-align: center; }
-        button { background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; margin-top: 10px; width: 100%; }
-        button:hover { background-color: #2ecc71; transform: scale(1.02); }
-        input[type="text"], input[type="number"] { width: 80%; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .box { background: white; padding: 30px; border-radius: 10px; width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #007bff; color: white; font-weight: bold; cursor: pointer; border: none; }
+        button:hover { background: #0056b3; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>FoodFlow</h1>
-        <p>O sistema de gestão do seu restaurante</p>
+<div class="box">
+    <h2>📝 Novo Pedido</h2>
+    <input type="text" id="cliente" placeholder="Nome do Cliente">
+    <input type="text" id="item" placeholder="Item (Ex: Pizza)">
+    <select id="tipo">
+        <option value="local">Mesa (Local)</option>
+        <option value="delivery">Delivery</option>
+    </select>
+    <input type="text" id="localizacao" placeholder="Mesa ou Endereço">
+    <input type="number" id="preco" step="0.01" placeholder="Preço R$ (Ex: 25.50)">
+    
+    <button onclick="enviar()">Enviar Pedido</button>
+</div>
 
-        <div class="seletor-logistica">
-            <h3>Como deseja seu pedido?</h3>
-            <label><input type="radio" name="tipo" value="local" checked onclick="toggleEndereco(false)"> 📍 Local</label>
-            <label><input type="radio" name="tipo" value="delivery" onclick="toggleEndereco(true)"> 🛵 Delivery</label>
-            
-            <div id="campo-endereco" style="display: none;">
-                <input type="text" id="endereco" placeholder="Digite seu endereço de entrega">
-            </div>
-            <div id="campo-mesa">
-                <input type="number" id="mesa" placeholder="Nº da Mesa">
-            </div>
-        </div>
+<script>
+async function enviar() {
+    const dados = {
+        cliente: document.getElementById('cliente').value,
+        item: document.getElementById('item').value,
+        tipo: document.getElementById('tipo').value,
+        localizacao: document.getElementById('localizacao').value,
+        preco: document.getElementById('preco').value, // O servidor vai converter para número
+        hora: new Date().toLocaleTimeString()
+    };
 
-        <div class="grid-cardapio">
-            <div class="item-prato">
-                <h3>Hambúrguer</h3>
-                <p>R$ 25,00</p>
-                <button onclick="fazerPedido('Hambúrguer')">Pedir</button>
-            </div>
-            <div class="item-prato">
-                <h3>Pizza</h3>
-                <p>R$ 45,00</p>
-                <button onclick="fazerPedido('Pizza')">Pedir</button>
-            </div>
-        </div>
-    </div>
+    if(!dados.item || !dados.preco) return alert("Preencha item e preço!");
 
-    <script>
-        function toggleEndereco(isDelivery) {
-            document.getElementById('campo-endereco').style.display = isDelivery ? 'block' : 'none';
-            document.getElementById('campo-mesa').style.display = isDelivery ? 'none' : 'block';
-        }
+    const res = await fetch('http://localhost:3000/pedido', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(dados)
+    });
 
-        function fazerPedido(item) {
-            const tipo = document.querySelector('input[name="tipo"]:checked').value;
-            alert("Sucesso! Pedido de " + item + " para " + tipo.toUpperCase());
-        }
-    </script>
+    if(res.ok) {
+        alert("✅ Pedido enviado!");
+        location.reload();
+    } else {
+        alert("❌ Erro ao enviar.");
+    }
+}
+</script>
 </body>
 </html>

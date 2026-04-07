@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Financeiro - FoodFlow</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; text-align: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; shadow: 0 10px 20px rgba(0,0,0,0.1); display: inline-block; width: 450px; }
+        #faturamento-total { font-size: 32px; color: #28a745; font-weight: bold; margin: 10px 0; }
+        button { background: #1d6f42; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>📊 Painel de Controle FoodFlow</h1>
+    
+    <div class="card">
+        <h3>Faturamento Total:</h3>
+        <div id="faturamento-total">R$ 0,00</div>
+        <p>Total de Pedidos: <span id="total">0</span></p>
+        
+        <canvas id="meuGrafico"></canvas>
+        
+        <button onclick="exportarParaExcel()">📥 Baixar Relatório Financeiro</button>
+    </div>
+
+    <script>
+        let dadosPedidos = [];
+
+        async function buscarDados() {
+            try {
+                // Adicionamos um número aleatório no final para o navegador não "viciar" na resposta antiga
+                const resposta = await fetch('http://localhost:3000/listar-pedidos?v=' + Math.random());
+                dadosPedidos = await resposta.json();
+
+                // 1. Atualiza quantidade total
+                document.getElementById('total').innerText = dadosPedidos.length;
+
+                // 2. SOMA OS VALORES (O Pulo do Gato!)
+                const somaTotal = dadosPedidos.reduce((acumulador, p) => {
+                    return acumulador + (Number(p.preco) || 0);
+                }, 0);
+
+                document.getElementById('faturamento-total').innerText = `R$ ${somaTotal.toFixed(2).replace('.', ',')}`;
+
+                // 3. Gráfico
+                const delivery = dadosPedidos.filter(p => p.tipo.trim().toLowerCase() === 'delivery').length;
+                const mesa = dadosPedidos.filter(p => p.tipo.trim().toLowerCase() === 'local').length;
+
+                const ctx = document.getElementById('meuGrafico').getContext('2d');
+                if (window.graficoPizza) { window.graficoPizza.destroy(); }
+                window.graficoPizza = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Delivery 🛵', 'Mesa 🍽️'],
+                        datasets: [{
+                            data: [delivery, mesa],
+                            backgroundColor: ['#FF6384', '#36A2EB']
+                        }]
+                    }
+                });
+
+            } catch (erro) {
+                console.error("Erro ao buscar dados:", erro);
+            }
+        }
+
+        function exportarParaExcel() {
+            let csv = 'ID;CLIENTE;ITEM;TIPO;PRECO\n';
+            let totalPlanilha = 0;
+            
+            dadosPedidos.forEach(p => {
+                const v = Number(p.preco) || 0;
+                totalPlanilha += v;
+                csv += `${p.id};${p.cliente};${p.item};${p.tipo};${v.toFixed(2)}\n`;
+            });
+            
+            csv += `\n;;;TOTAL GERAL;${totalPlanilha.toFixed(2)}`;
+            
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'financeiro_foodflow.csv';
+            a.click();
+        }
+
+        // Atualiza a cada 5 segundos sozinho
+        buscarDados();
+        setInterval(buscarDados, 5000);
+    </script>
+</body>
+</html>
